@@ -20,22 +20,6 @@ import * as Color from "./color.js";
 
 /**
  * @param {Color} color
- * @param {number} side
- * @returns {Shape}
- */
-export function square(color, side) {
-    return {
-        kind: "Polygon", color, points: [
-            {x: -side / 2, y: -side / 2},
-            {x: side / 2, y: -side / 2},
-            {x: side / 2, y: side / 2},
-            {x: -side / 2, y: side / 2}
-        ]
-    };
-}
-
-/**
- * @param {Color} color
  * @param {number} width
  * @param {number} height
  * @returns {Shape}
@@ -49,6 +33,15 @@ export function rectangle(color, width, height) {
             {x: -width / 2, y: height / 2}
         ]
     };
+}
+
+/**
+ * @param {Color} color
+ * @param {number} side
+ * @returns {Shape}
+ */
+export function square(color, side) {
+    return rectangle(color, side, side);
 }
 
 /**
