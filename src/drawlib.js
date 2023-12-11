@@ -55,7 +55,24 @@ export function group(shapes) {
  */
 export function move(dx, dy, shape) {
   switch (shape.kind) {
-    // TODO 1
+    // TODO 1 -> DONE
+    case "Square":
+      return {
+        ...shape,
+        xCenter: shape.xCenter + dx,
+        yCenter: shape.yCenter + dy
+      };
+    case "Circle":
+      return {
+        ...shape,
+        xCenter: shape.xCenter + dx,
+        yCenter: shape.yCenter + dy
+      };
+    case "Group":
+      return {
+        ...shape,
+        shapes: shape.shapes.map(s => move(dx, dy, s))
+      };
     default:
       throw "Unexpected! Some case is missing";
   }
@@ -113,8 +130,11 @@ function render(shape, context) {
  * @param {CanvasRenderingContext2D} context
  */
 function renderCircle(color, xCenter, yCenter, radius, context) {
-  // TODO 2
-  // (search for how to draw an "ellipse" in canvas)
+  // TODO 2 -> DONE
+  context.beginPath(); // Start a new path
+  context.arc(xCenter, yCenter, radius, 0, 2 * Math.PI); // Draw a circle
+  context.fillStyle = Color.render(color); // Set the fill color
+  context.fill(); // Fill the circle with the color
 }
 
 /**
