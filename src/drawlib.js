@@ -2,21 +2,21 @@ import * as Color from "./color.js";
 
 /**
  * @typedef { Color.Color} Color
- * 
+ *
  * The following type definition is meant to be "opaque".
  * That mean that users of `drawlib` will be able to use the `Shape` type
  * but are discouraged to build shapes directly as this representation
- * in terms of `Square/Circle/Group` might change in the future 
+ * in terms of `Square/Circle/Group` might change in the future
  * (and actually, it will! See the part 2 of the homework!)
- * 
+ *
  * Users of the lib should build the shapes with helper functions such as
  * `square`, `circle` or `group`.
  * @typedef {
-   | {kind: "Square";color: Color;side : number; xCenter: number; yCenter:number }
-   | {kind: "Circle";radius: number;color: Color; xCenter: number; yCenter: number}
-   | {kind: "Group"; shapes : Array<Shape>}
-   } Shape
-*/
+ | {kind: "Polygon";color: Color;points : Array<{x:number;y:number}>}
+ | {kind: "Circle";radius: number;color: Color; xCenter: number; yCenter: number}
+ | {kind: "Group"; shapes : Array<Shape>}
+ } Shape
+ */
 
 /**
  * @param {Color} color
@@ -24,7 +24,40 @@ import * as Color from "./color.js";
  * @returns {Shape}
  */
 export function square(color, side) {
-  return { kind: "Square", color, side, xCenter: 0, yCenter: 0 };
+    return {
+        kind: "Polygon", color, points: [
+            {x: -side / 2, y: -side / 2},
+            {x: side / 2, y: -side / 2},
+            {x: side / 2, y: side / 2},
+            {x: -side / 2, y: side / 2}
+        ]
+    };
+}
+
+/**
+ * @param {Color} color
+ * @param {number} width
+ * @param {number} height
+ * @returns {Shape}
+ */
+export function rectangle(color, width, height) {
+    return {
+        kind: "Polygon", color, points: [
+            {x: -width / 2, y: -height / 2},
+            {x: width / 2, y: -height / 2},
+            {x: width / 2, y: height / 2},
+            {x: -width / 2, y: height / 2}
+        ]
+    };
+}
+
+/**
+ * @param {Color} color
+ * @param {Array<{x:number;y:number}>} points
+ * @returns {Shape}
+ */
+export function polygon(color, points) {
+    return {kind: "Polygon", color, points};
 }
 
 /**
@@ -33,7 +66,7 @@ export function square(color, side) {
  * @returns {Shape}
  */
 export function circle(color, radius) {
-  return { kind: "Circle", radius, color, xCenter: 0, yCenter: 0 };
+    return {kind: "Circle", radius, color, xCenter: 0, yCenter: 0};
 }
 
 /**
@@ -41,7 +74,7 @@ export function circle(color, radius) {
  * @returns {Shape}
  */
 export function group(shapes) {
-  return { kind: "Group", shapes };
+    return {kind: "Group", shapes};
 }
 
 /**
@@ -54,28 +87,26 @@ export function group(shapes) {
  * @returns {Shape}
  */
 export function move(dx, dy, shape) {
-  switch (shape.kind) {
-    // TODO 1 -> DONE
-    case "Square":
-      return {
-        ...shape,
-        xCenter: shape.xCenter + dx,
-        yCenter: shape.yCenter + dy
-      };
-    case "Circle":
-      return {
-        ...shape,
-        xCenter: shape.xCenter + dx,
-        yCenter: shape.yCenter + dy
-      };
-    case "Group":
-      return {
-        ...shape,
-        shapes: shape.shapes.map(s => move(dx, dy, s))
-      };
-    default:
-      throw "Unexpected! Some case is missing";
-  }
+    switch (shape.kind) {
+        case "Polygon":
+            return {
+                ...shape,
+                points: shape.points.map(p => ({x: p.x + dx, y: p.y + dy}))
+            };
+        case "Circle":
+            return {
+                ...shape,
+                xCenter: shape.xCenter + dx,
+                yCenter: shape.yCenter + dy
+            };
+        case "Group":
+            return {
+                ...shape,
+                shapes: shape.shapes.map(s => move(dx, dy, s))
+            };
+        default:
+            throw "Unexpected! Some case is missing";
+    }
 }
 
 /**
@@ -84,9 +115,9 @@ export function move(dx, dy, shape) {
  * @returns {void}
  */
 export function renderCentered(shape, context) {
-  const width = context.canvas.width;
-  const height = context.canvas.height;
-  render(move(width / 2, height / 2, shape), context);
+    const width = context.canvas.width;
+    const height = context.canvas.height;
+    render(move(width / 2, height / 2, shape), context);
 }
 
 /**
@@ -95,31 +126,26 @@ export function renderCentered(shape, context) {
  * @returns {void}
  */
 function render(shape, context) {
-  switch (shape.kind) {
-    case "Circle":
-      renderCircle(
-        shape.color,
-        shape.xCenter,
-        shape.yCenter,
-        shape.radius,
-        context
-      );
-      break;
-    case "Square":
-      renderSquare(
-        shape.color,
-        shape.xCenter,
-        shape.yCenter,
-        shape.side,
-        context
-      );
-      break;
-    case "Group":
-      shape.shapes.forEach((shape) => render(shape, context));
-      break;
-    default:
-      throw "Unexpected! Some case is missing";
-  }
+    switch (shape.kind) {
+        case "Circle":
+            renderCircle(
+                shape.color,
+                shape.xCenter,
+                shape.yCenter,
+                shape.radius,
+                context
+            );
+            break;
+        case "Polygon":
+            context.fillStyle = Color.render(shape.color);
+            context.fill(polygonToPath(shape.points));
+            break;
+        case "Group":
+            shape.shapes.forEach((shape) => render(shape, context));
+            break;
+        default:
+            throw "Unexpected! Some case is missing";
+    }
 }
 
 /**
@@ -130,31 +156,23 @@ function render(shape, context) {
  * @param {CanvasRenderingContext2D} context
  */
 function renderCircle(color, xCenter, yCenter, radius, context) {
-  // TODO 2 -> DONE
-  context.beginPath(); // Start a new path
-  context.arc(xCenter, yCenter, radius, 0, 2 * Math.PI); // Draw a circle
-  context.fillStyle = Color.render(color); // Set the fill color
-  context.fill(); // Fill the circle with the color
+    // TODO 2 -> DONE
+    context.beginPath(); // Start a new path
+    context.arc(xCenter, yCenter, radius, 0, 2 * Math.PI); // Draw a circle
+    context.fillStyle = Color.render(color); // Set the fill color
+    context.fill(); // Fill the circle with the color
 }
 
 /**
- * @param {Color} color
- * @param {number} side
- * @param {number} xCenter
- * @param {number} yCenter
- * @param {CanvasRenderingContext2D} context
+ * @returns {Path2D}
+ * @param {Array<{x:number;y:number}>} points
  */
-function renderSquare(color, xCenter, yCenter, side, context) {
-  // Note: we could have used `context.rect` but the following
-  // code will be more easily translatable to draw polygon
-  // (see part 2 of the homework)
-  const path = new Path2D();
-  const halfSide = side / 2;
-  path.moveTo(xCenter - halfSide, yCenter - halfSide);
-  path.lineTo(xCenter + halfSide, yCenter - halfSide);
-  path.lineTo(xCenter + halfSide, yCenter + halfSide);
-  path.lineTo(xCenter - halfSide, yCenter + halfSide);
-  path.closePath();
-  context.fillStyle = Color.render(color);
-  context.fill(path);
+function polygonToPath(points) {
+    const path = new Path2D();
+    path.moveTo(points[0].x, points[0].y);
+    for (let i = 1; i < points.length; i++) {
+        path.lineTo(points[i].x, points[i].y);
+    }
+    path.closePath();
+    return path;
 }
