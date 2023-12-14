@@ -105,6 +105,31 @@ const treeBody = drawlib.group([
     ])),
 ]);
 
+const sheepBody = drawlib.group([
+    drawlib.rectangle(color.white, 120, 50),
+    drawlib.move(-50, 50, drawlib.rectangle(color.grey, 20, 50)),
+    drawlib.move(-50, 75, drawlib.rectangle(color.black, 20, 5)),
+    drawlib.move(50, 50, drawlib.rectangle(color.grey, 20, 50)),
+    drawlib.move(50, 75, drawlib.rectangle(color.black, 20, 5)),
+    drawlib.move(-50, -15, drawlib.circle(color.white, 20)),
+    drawlib.move(-55, 0, drawlib.circle(color.white, 20)),
+    drawlib.move(-30, -20, drawlib.circle(color.white, 20)),
+    drawlib.move(0, -20, drawlib.circle(color.white, 20)),
+    drawlib.move(30, -20, drawlib.circle(color.white, 20)),
+
+    //head
+    drawlib.move(70, -15, drawlib.rectangle(color.grey, 40, 30)),
+    drawlib.move(70, 0, drawlib.circle(color.grey, 20)),
+    drawlib.move(65, -12, drawlib.circle(color.black, 3)),
+    drawlib.move(75, -12, drawlib.circle(color.black, 3)),
+    drawlib.move(55, -33, drawlib.circle(color.white, 8)),
+    drawlib.move(65, -33, drawlib.circle(color.white, 8)),
+    drawlib.move(75, -33, drawlib.circle(color.white, 8)),
+    drawlib.move(85, -33, drawlib.circle(color.white, 8)),
+
+
+]);
+
 const treeOnHill = drawlib.group([
     drawlib.move(0, 25, treeBody),
 
@@ -114,6 +139,12 @@ const treeOnHill = drawlib.group([
     // sun
     drawlib.move(550, -300, drawlib.circle(color.darkOrange, 250)),
     drawlib.move(550, -300, drawlib.circle(color.lightOrange, 150)),
+
+    // sheep
+    drawlib.move(0, 300, sheepBody),
+    drawlib.move(-300, 280, sheepBody),
+    drawlib.move(280, 280, sheepBody),
+
 ]);
 
 function main() {
